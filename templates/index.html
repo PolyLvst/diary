@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS And JS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+
+    <!-- AJAX -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <!-- CUSTOM FILE INPUT-->
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+
+    <title>Personal Diary</title>
+    <style>
+        .profile-icon {
+            border-radius: 100%;
+            object-fit: cover;
+            height: 60px;
+            width: 60px;
+            margin: 5px 0px 20px 0px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            clearOrResetInput();
+            bsCustomFileInput.init();
+            listing();
+        });
+        function clearOrResetInput() {
+            $(':input')
+            .not(':button, :submit, :reset, :hidden')
+            .removeAttr('checked')
+            .removeAttr('selected')
+            .not(':checkbox, :radio, select')
+            .val('');
+        }
+        function listing() {
+            $.ajax({
+                type: 'GET',
+                url: '/diary',
+                data: {},
+                success: function (response) {
+                    diaries = response['diaries'];
+                    $('#text-box').empty();
+                    for (let i = 0; i < diaries.length; i++) {
+                        let title = diaries[i]['title'];
+                        let content = diaries[i]['content'];
+                        let image_title = diaries[i]['file'];
+                        let profile_img = diaries[i]['profile'];
+                        let temp_html = `
+                        <div class="col-4">
+
+                            <div class="card">
+                                <img src="../${image_title}" class="card-img-top"
+                                    alt="">
+                                <div class="card-body">
+                                    <img src="../${profile_img}" class="profile-icon" alt="UserProfile">
+                                    <h5 class="card-title">${title}</h5>
+                                    <p class="card-text">${content}</p>
+                                    <h6 class="card-subtitle mb-2 text-muted">Diary</h6>
+                                </div>
+                            </div>
+
+                        </div>
+                        `;
+                        $('#text-box').append(temp_html);
+                    }
+                }
+            });
+        };
+
+        function posting() {
+            let title = $('#image_title').val();
+            if (!title) {
+                return alert('please enter the title');
+            }
+            let content = $('#description_textarea').val();
+            if (!content) {
+                return alert('please enter the description');
+            }
+
+            let image_file = $('#input-image-client').prop('files')[0];
+            let profile_client = $('#input-profile-client').prop('files')[0];
+            
+            const formData = new FormData();
+
+            formData.append('title_give', title);
+            formData.append('content_give', content);
+            formData.append('file_give', image_file);
+            formData.append('profile', profile_client);
+
+            $.ajax({
+                type: 'POST',
+                url: '/diary',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response['msg']);
+                    window.location.reload();
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="row align-items-md-stretch">
+            <div class="p-5 mb-4 bg-dark text-light rounded-3">
+                <div class="container-fluid py-5">
+                    <h1 class="display-5 fw-bold">Personal Diary</h1>
+                    <div class="input-group mb-3 custom-file">
+                        <input type="file" class="form-control" id="input-image-client">
+                    </div>
+                    <div class="input-group mb-3 custom-file">
+                        <input type="file" class="form-control" id="input-profile-client">
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Insert image title"
+                            aria-label="Image title" aria-describedby="basic-addon1" id="image_title">
+                    </div>
+                    <div class="input-group">
+                        <textarea class="form-control" placeholder="The description of your image"
+                            aria-label="description" id="description_textarea"></textarea>
+                    </div>
+                    <button onclick="posting()" type="button" class="mt-3 btn btn-success">Confirm</button>
+                    <button onclick="clearOrResetInput()" type="button" class="mt-3 ms-2 btn btn-outline-danger">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-start" id="text-box">
+            <div class="col-4">
+
+                <div class="card">
+                    <img src="../static/default-image.png" class="card-img-top" alt="check your connection">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the
+                            card's
+                            content.</p>
+                        <h6 class="card-subtitle mb-2 text-muted">22-02-2023</h6>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-4">
+
+                <div class="card">
+                    <img src="../static/default-image.png" class="card-img-top" alt="check your connection">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the
+                            card's
+                            content.</p>
+                        <h6 class="card-subtitle mb-2 text-muted">22-02-2023</h6>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-4">
+
+                <div class="card">
+                    <img src="../static/default-image.png" class="card-img-top" alt="check your connection">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the
+                            card's
+                            content.</p>
+                        <h6 class="card-subtitle mb-2 text-muted">22-02-2023</h6>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-4">
+
+                <div class="card">
+                    <img src="../static/default-image.png" class="card-img-top" alt="check your connection">
+                    <div class="card-body">
+                        <h5 class="card-title">Card title</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the
+                            card's
+                            content.</p>
+                        <h6 class="card-subtitle mb-2 text-muted">22-02-2023</h6>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div style="margin: 10px 0px 10px 20px;">
+            <a class="navbar-brand" href="https://github.com/PolyLvst">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github"
+                    viewBox="0 0 16 16" style="--darkreader-inline-fill: currentColor;" data-darkreader-inline-fill="">
+                    <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z">
+                    </path>
+                </svg>
+                PolyLvst
+            </a>
+        </div>
+    </footer>
+
+</body>
+
+</html>
