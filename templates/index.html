@@ -53,10 +53,15 @@
                     diaries = response['diaries'];
                     $('#text-box').empty();
                     for (let i = 0; i < diaries.length; i++) {
+                        let date_posted = diaries[i]['date'];
                         let title = diaries[i]['title'];
                         let content = diaries[i]['content'];
                         let image_title = diaries[i]['file'];
                         let profile_img = diaries[i]['profile'];
+
+                        if (date_posted == null){
+                            date_posted = 'Long time ago';
+                        }
                         let temp_html = `
                         <div class="col-4">
 
@@ -67,7 +72,8 @@
                                     <img src="../${profile_img}" class="profile-icon" alt="UserProfile">
                                     <h5 class="card-title">${title}</h5>
                                     <p class="card-text">${content}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">Diary</h6>
+                                    <h6 class="card-subtitle mb-2 text-muted">Diary posted</h6>
+                                    <h6 class="card-subtitle mb-2 text-muted">${date_posted}</h6>
                                 </div>
                             </div>
 
